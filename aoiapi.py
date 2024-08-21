@@ -50,7 +50,7 @@ def generate_token(user):
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)  # トークンの有効期限を1日に設定
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-    return token
+    return token if isinstance(token, str) else token.decode('utf-8')
 
 # 署名付きURLの発行
 def get_s3_url(file_name = "test.csv"):
