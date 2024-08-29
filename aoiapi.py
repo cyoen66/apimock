@@ -31,8 +31,6 @@ users = {
 }
 
 # S3
-aws_access_key_id = 'ASIAZQ3DRGRDJ7VTUCRA'
-aws_secret_access_key = '/NK/77jJZgJb3Y7M4tS7/0cuIJJQ0RVTCPgzJSR7'
 bucket = 'yfc-test-bucket'
 
 
@@ -54,11 +52,14 @@ def generate_token(user):
 
 # 署名付きURLの発行
 def get_s3_url(file_name = "test.csv"):
-    s3_client = boto3.client('s3', 
-                             aws_access_key_id=aws_access_key_id, 
-                             aws_secret_access_key = aws_secret_access_key) 
+#    s3_client = boto3.client('s3', 
+#                             aws_access_key_id=aws_access_key_id, 
+#                             aws_secret_access_key = aws_secret_access_key) 
     # S3 クライアントを作成
-    #s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3',config=boto3.session.Config(
+                             signature_version='s3v4',
+                             s3={'api_version': '2006-03-01'}
+                         ))
 
     # 署名付きURLを生成
     try:
@@ -278,10 +279,16 @@ def get_presigned_url():
      # userを取得する
     user = g.current_user
     # userが10001425の場合は、expiresを1日後に設定
-    if user == "10001425" and corpStoreCd == "20002260" and filename == "A00200501010000100000.txt":
+    if user == "10001425" and corpStoreCd == "20002260":
         return jsonify({
                 "corpStoreCd": "10001425",
-                "fileNm": "A00200501010000100000.txt",
+                "fileNm": filename,
+                "url": s3_url
+                }), 200
+    if user == "10001425" and corpStoreCd == "20002260":
+        return jsonify({
+                "corpStoreCd": "10001425",
+                "fileNm": filename,
                 "url": s3_url
                 }), 200
     elif user == "400":
